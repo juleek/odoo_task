@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import MissingError
 
 
 class EstateProperty(models.Model):
@@ -36,10 +37,31 @@ class EstateProperty(models.Model):
         for elem in self:
             elem.total_area = elem.garden_area + elem.living_area
 
-    best_offer = fields.Integer(compute="_compute_offer_price", store=True)
+    best_offer = fields.Integer(default=0, compute="_compute_offer_price", store=True)
     @api.depends("offer_ids.price")
     def _compute_offer_price(self):
-        self.best_offer = max(self.offer_ids.mapped("price"))
+        self.best_offer = max(self.offer_ids.mapped("price"), default=0)
 
+    @api.onchange("garden")
+    def _onchange_garden(self):
+        if self.garden:
+            self.garden_area = 10
+            self.garden_orientation = "north"
+        else:
+            self.garden_area = 0
+            self.garden_orientation = False
 
+    def sold_property(self):
+        if self.state == "canceled":
+            raise MissingError('Сanceled property cannot be sold')
+        else:
+            self.state = "sold"
+        return True
+
+    def cancel_property(self):
+        if self.state == "sold":
+            raise MissingError('Sold property cannot be canceled')
+        else:
+            self.state = "canceled"
+        return True
 
