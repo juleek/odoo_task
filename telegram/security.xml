@@ -1,0 +1,21 @@
+<odoo>
+    <record id="access_measurements_public" model="ir.model.access">
+        <field name="name">measurements.access.public</field>
+        <field name="model_id" ref="model_measurements"/>
+        <field name="group_id" ref="base.group_public"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="access_telegram_bot_public" model="ir.model.access">
+        <field name="name">telegram.bot.access.public</field>
+        <field name="model_id" ref="model_telegram_bot"/>
+        <field name="group_id" ref="base.group_public"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>
