@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<odoo>
+    <menuitem id="test_menu_root" name="Measurements">
+        <menuitem id="test_first_menu_root" name="Info">
+            <menuitem id="test_model_menu_action" action="measurements_model_action"/>
+        </menuitem>
+        <menuitem id="test_second_level_menu" name="Other">
+            <menuitem id="test_model_type_action" action="telegram_model_action"/>
+        </menuitem>
+    </menuitem>
+</odoo>

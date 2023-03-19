@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="telegram_model_action" model="ir.actions.act_window">
+        <field name="name">Bot ID</field>
+        <field name="res_model">telegram.bot</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="telegram_model_view_tree" model="ir.ui.view">
+        <field name="name">telegram_model_view_tree</field>
+        <field name="model">telegram.bot</field>
+        <field name="arch" type="xml">
+            <tree string="Other">
+                <field name="bot_id"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

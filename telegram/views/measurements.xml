@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="measurements_model_action" model="ir.actions.act_window">
+        <field name="name">Measurements</field>
+        <field name="res_model">measurements</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="measurements_model_view_tree" model="ir.ui.view">
+        <field name="name">measurements_model_view_tree</field>
+        <field name="model">measurements</field>
+        <field name="arch" type="xml">
+            <tree string="Measurements">
+                <field name="date"/>
+                <field name="temperature"/>
+                <field name="tube_name"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

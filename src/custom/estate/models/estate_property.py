@@ -1,10 +1,12 @@
 from odoo import models, fields, api
-from odoo.exceptions import MissingError
+from odoo.exceptions import MissingError, ValidationError
+import odoo.tools.float_utils as flutil
 
 
 class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "Information about properties"
+    _order = "id desc"
 
     name = fields.Char(required=True)
     active = fields.Boolean('Active', default=True)
@@ -23,13 +25,21 @@ class EstateProperty(models.Model):
         selection=[('north', 'North'), ('south', 'South'), ('east', 'East'), ('west', 'West')]
     )
     state = fields.Selection(
-        selection=[('new', 'New'), ('offer received', 'Offer Received'), ('offer accepted', 'Offer Accepted'), ('sold', 'Sold'), ('canceled', 'Canceled')]
+        selection=[('new', 'New'), ('offer received', 'Offer Received'), ('offer accepted', 'Offer Accepted'), ('sold', 'Sold'), ('canceled', 'Canceled')],
+        default="new"
     )
     property_type_id = fields.Many2one("estate.property.type")
     buyer = fields.Many2one("res.partner", string="Buyer")
     salesperson = fields.Many2one("res.users", string="Salesperson", default=lambda self: self.env.user)
     tag_ids = fields.Many2many("estate.property.tag")
     offer_ids = fields.One2many("estate.property.offer", "property_id")
+
+
+    _sql_constraints = [
+        ('expected_price', 'CHECK(expected_price >= 0)', 'The price should be positive.'),
+        ('selling_price', 'CHECK(selling_price >= 0)', 'The price should be positive.'),
+        ('name', 'Unique(name)', 'You can not have two properties with the same name!')
+    ]
 
     total_area = fields.Integer(compute="_compute_total")
     @api.depends("garden_area", "living_area")
@@ -64,4 +74,15 @@ class EstateProperty(models.Model):
         else:
             self.state = "canceled"
         return True
+
+    @api.constrains('selling_price', "expected_price")
+    def _check_sale_price(self):
+        for record in self:
+            if flutil.float_is_zero(record.selling_price, precision_digits=2):
+                continue
+            price_for_accept = record.expected_price * 0.9
+            if flutil.float_compare(record.selling_price, price_for_accept, precision_rounding=2) == -1:
+                raise ValidationError("Selling price cannot be lower than 90% of the expected price")
+
+
 
