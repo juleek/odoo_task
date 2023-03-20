@@ -2,8 +2,6 @@
 
 In this repo, there is an implementation of a Telegram Bot with several comands which retrieve data from a DB using Odoo models.
 
-The code of the module is [here](https://github.com/juleek/odoo_task/tree/master/telegram).
-
 The telegram module consists of two models:
 
 * **The "measurements" model** - stores:
