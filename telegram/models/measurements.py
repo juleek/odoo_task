@@ -13,9 +13,4 @@ class Measurements(models.Model):
     @api.model
     def read_all_tempretarures(self, for_tube):
         domain = [('tube_name', '=', for_tube)]
-        temperatures = self.search(domain)
-
-        result = []
-        for temp in temperatures:
-            result.append(temp.temperature)
-        return result
+        return [temp.temperature for temp in self.search(domain)]
