@@ -88,13 +88,14 @@ def get_chatid_from_json(d) -> t.Optional[int]:
     else:
         return None
 
-def get_tube_name(jsn):
-    # Telegram Bot API responses are represented as JSON-objects. https://core.telegram.org/bots/api#message
-    text: str = jsn['message']['text']
-    # 'entities' is Array of MessageEntity. https://core.telegram.org/bots/api#messageentity
-    command_type: str = jsn['message']['entities'][0]['type']
-    if command_type == "bot_command" and (text == "/ambient" or text == "/bottom"):
-        return text
+def get_tube_name(jsn) -> t.Optional[str]:
+    try:
+        text: str = jsn['message']['text']
+        command_type: str = jsn['message']['entities'][0]['type']
+        if command_type == "bot_command" and (text == "/ambient" or text == "/bottom"):
+            return text[1:]
+    except:
+        return None
 
 
 def send_text(chat_id: int, text: str, bot_id: int):
@@ -111,17 +112,24 @@ class MyController(odoo.http.Controller):
     @route('/odoo', auth='public', type='http', csrf=False)
     def handler(self):
         logger.info(f'Request = {request.httprequest.data}')
-        jsn = json.loads(request.httprequest.data.decode("utf-8"))
-        tube_name = get_tube_name(jsn)[1:]
+        try:
+            jsn = json.loads(request.httprequest.data.decode("utf-8"))
 
-        chat_id: int = get_chatid_from_json(jsn)
+            tube_name = get_tube_name(jsn)
+            if tube_name == None:
+                return Response("OK", status=200)
 
-        measurements_model = request.env['measurements']
-        temperatures = measurements_model.read_all_tempretarures(tube_name)
+            chat_id: int = get_chatid_from_json(jsn)
 
-        bot_id: int = 0
-        for record in request.env['telegram.bot'].search([]):
-            bot_id = record.bot_id
-        msg = f'Temperatures for {tube_name}: {temperatures}'
-        send_text(chat_id, msg, bot_id)
-        return Response("OK", status=200)
+            measurements_model = request.env['measurements']
+            temperatures = measurements_model.read_all_tempretarures(tube_name)
+
+            bot_id: int = 0
+            for record in request.env['telegram.bot'].search([]):
+                bot_id = record.bot_id
+            msg = f'Temperatures for {tube_name}: {temperatures}'
+            send_text(chat_id, msg, bot_id)
+            return Response("OK", status=200)
+        except:
+            logger.info(f"Got Exception: {sys.exc_info()[0]}")
+            return Response("OK", status=200)
